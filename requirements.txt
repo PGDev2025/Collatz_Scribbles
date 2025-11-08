@@ -2,3 +2,4 @@ flask
 pyvis
 networkx
 gunicorn
+flask-cors
