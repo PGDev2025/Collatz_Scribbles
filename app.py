@@ -1,13 +1,14 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory  # Add send_from_directory
 from flask_cors import CORS
 from Collatz import Collatz_Graph
 from Graph_Structure import positioner
 from Collatz_Sequence_Graph import GraphMaker
-import os
+import os  # Add this import
 
 app = Flask(__name__)
 CORS(app)
 
+# ADD THIS ROUTE - serves your index.html
 @app.route('/')
 def index():
     """Serve the main HTML page"""
@@ -97,12 +98,21 @@ def health():
 
 
 if __name__ == '__main__':
+    # Check if running on Render
+    is_production = os.environ.get('RENDER') is not None
     port = int(os.environ.get('PORT', 5000))
     
-    print("\n" + "="*50)
-    print("🚀 Collatz Backend - PRODUCTION MODE")
-    print("="*50)
-    print(f"🌐 Running on port {port}")
-    print("="*50 + "\n")
-    
-    app.run(host='0.0.0.0', port=port, debug=False)
+    if is_production:
+        print("\n" + "="*50)
+        print("🚀 Collatz Backend - PRODUCTION MODE")
+        print("="*50)
+        app.run(host='0.0.0.0', port=port, debug=False)
+    else:
+        print("\n" + "="*50)
+        print("🚀 Collatz Backend Server - LOCAL MODE")
+        print("="*50)
+        print("📡 API: http://localhost:5000")
+        print("🔗 Health: http://localhost:5000/health")
+        print("🏠 Home: http://localhost:5000")
+        print("="*50 + "\n")
+        app.run(debug=True, port=port, host='0.0.0.0')
