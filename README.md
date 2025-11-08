@@ -1,27 +1,40 @@
-# Collatz_Scribbles
+# Collatz Scribbles
 
-# WELCOME TO COLLATZ SCRIBBLES
-A site where one can explore the math magic of Collatz Conjecture and explore the collatz sequence for any number between(1-10000)
-## Collatz Conjecture 
-It states that any positive number would end up as 1 if the following operations are repeatedly applied:
+An interactive web application to explore the mathematical magic of the Collatz Conjecture by visualizing the Collatz sequence for any number between 1 and 10,000.
 
-if number is odd then do 3*(number)+1
-if number is even then do (number)/2
+## What is the Collatz Conjecture?
 
-This is one of the most notorious unsolved problem in mathematics which looks simple but is deceiving
+The Collatz Conjecture is one of the most famous unsolved problems in mathematics. Despite its simple rules, no one has been able to prove it works for all numbers.
+
+**The rules are:**
+- If the number is **odd**: multiply by 3 and add 1 → `3n + 1`
+- If the number is **even**: divide by 2 → `n / 2`
+
+The conjecture states that no matter what positive integer you start with, you'll always eventually reach 1.
+
+## Features
+
+- 🔢 Generate Collatz sequences for any number from 1 to 10,000
+- 📊 Interactive graph visualization of the sequence
+- 🎨 Clean, intuitive user interface
+
+## Project Structure
+```
+├── index.html                    # Landing page/interface
+├── Collatz.py                    # Collatz sequence computation
+├── Graph_Structure.py            # Graph node positioning logic
+├── Collatz_Sequence_Graph.py     # Graph visualization generation
+└── app.py                        # Flask backend server
+```
 
 
-This repository contains code for the site Collatz_Scribbles based on Collatz Sequence Generation for any number between(1-10000) based on Collatz Conjecture 
+## Technologies Used
 
-The code involves the following main files:
-index.html - (Interface/landing page) Generated through BOLT AI by constructing a highly specialised prompt based on self thought design through claude
-Collatz.py-Self written code to compute collatz sequence for graph nodes that would be displayed for input number
-Graph_Structure.py-Self written code to compute exact positions of graph nodes for accurate collatz graph representation and accurate positioning of edges
-Collatz_Sequence_Graph.py- Self written code along with some help from claude for node,edges and graph design based on nodes and edges as well as code for generating graph html file for display on site from above Collatz.py and Graph_Structure.py
-app.py-Backend code to serve the generated graph html file on the site
+- **Python**: Backend logic
+- **Flask**: Web framework
+- **PyVis**: Interactive network visualization
+- **NetworkX**: Graph data structures and algorithms
 
-### Main Packages used:
-pyvis
-networkx
-flask
+
+
 
