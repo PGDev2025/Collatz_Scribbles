@@ -115,4 +115,5 @@ if __name__ == '__main__':
         print("🔗 Health: http://localhost:5000/health")
         print("🏠 Home: http://localhost:5000")
         print("="*50 + "\n")
-        app.run(debug=True, port=port, host='0.0.0.0')
+        app.run(debug=True, port=port, host='127.0.0.1')
+
