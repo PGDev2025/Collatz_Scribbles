@@ -1029,7 +1029,7 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
       btn.classList.add('loading');
 
       try {
-        const response = await fetch('http://localhost:5000/api/generate', {
+        const response = await fetch('http://localhost:5500/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ number: num })
@@ -1045,7 +1045,7 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('Backend not running!);
+        alert('Backend not running! Start the server with: python app.py\n\nMake sure it\'s running on http://localhost:5000');
       } finally {
         btn.classList.remove('loading');
       }
@@ -1054,10 +1054,9 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
     function showModal(htmlContent, stats, number) {
       const modal = document.getElementById('modal');
       const iframe = document.getElementById('modalIframe');
-      const title = document.getElementById('modalTitle');
       const statsDiv = document.getElementById('modalStats');
 
-      title.textContent = `Collatz Journey: ${number}`;
+      title.textContent = ``;
       statsDiv.innerHTML = `Steps: <strong>${stats.steps-1}</strong> | Peak: <strong>${stats.peak.toLocaleString()}</strong> | Growth: <strong>${stats.growth_factor}x</strong>`;
 
       iframe.srcdoc = htmlContent;
@@ -1123,6 +1122,4 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
     });
   </script>
 </body>
-
 </html>
-
