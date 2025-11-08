@@ -1055,6 +1055,7 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
       const modal = document.getElementById('modal');
       const iframe = document.getElementById('modalIframe');
       const statsDiv = document.getElementById('modalStats');
+      const title = document.getElementById('modalTitle');
 
       title.textContent = ``;
       statsDiv.innerHTML = `Steps: <strong>${stats.steps-1}</strong> | Peak: <strong>${stats.peak.toLocaleString()}</strong> | Growth: <strong>${stats.growth_factor}x</strong>`;
@@ -1123,4 +1124,5 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
   </script>
 </body>
 </html>
+
 
