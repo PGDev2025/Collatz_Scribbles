@@ -1029,7 +1029,7 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
       btn.classList.add('loading');
 
       try {
-        const response = await fetch('http://localhost:5500/api/generate', {
+        const response = await fetch('http://localhost:5000/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ number: num })
@@ -1123,3 +1123,4 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
   </script>
 </body>
 </html>
+
