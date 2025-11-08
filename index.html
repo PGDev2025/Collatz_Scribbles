@@ -1029,7 +1029,7 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
       btn.classList.add('loading');
 
       try {
-        const response = await fetch('http://collatz-scribbles.onrender.com/api/generate', {
+        const response = await fetch('http://localhost:5000/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ number: num })
@@ -1125,3 +1125,4 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
 </body>
 
 </html>
+
