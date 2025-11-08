@@ -1,14 +1,13 @@
-from flask import Flask, request, jsonify, send_from_directory  # Add send_from_directory
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from Collatz import Collatz_Graph
 from Graph_Structure import positioner
 from Collatz_Sequence_Graph import GraphMaker
-import os  # Add this import
+import os
 
 app = Flask(__name__)
 CORS(app)
 
-# ADD THIS ROUTE - serves your index.html
 @app.route('/')
 def index():
     """Serve the main HTML page"""
@@ -61,15 +60,8 @@ def generate_graph():
             'growth_factor': round(max(CLG_Nodes) / num, 2)
         }
         
-        # Print stats to console
-        print("\n" + "="*50)
-        print(f"✅ Collatz Visualization Complete!")
-        print("="*50)
-        print(f"📊 Starting Number: {num}")
-        print(f"🔢 Total Steps: {len(CLG_Nodes)}")
-        print(f"📈 Peak Value: {max(CLG_Nodes)}")
-        print(f"⚡ Growth Factor: {stats['growth_factor']}x")
-        print("="*50 + "\n")
+        # Log stats (Gunicorn will capture this)
+        print(f"✅ Generated Collatz for {num}: {len(CLG_Nodes)} steps, peak {max(CLG_Nodes)}")
         
         # Return HTML + stats
         return jsonify({
@@ -87,7 +79,6 @@ def generate_graph():
         traceback.print_exc()
         return jsonify({'error': 'Internal server error'}), 500
 
-
 @app.route('/health')
 def health():
     return jsonify({
@@ -96,23 +87,8 @@ def health():
         'version': '1.0.0'
     })
 
-
+# Only runs when called with `python app.py` (not with Gunicorn)
 if __name__ == '__main__':
-    # Check if running on Render
-    is_production = os.environ.get('RENDER') is not None
     port = int(os.environ.get('PORT', 5000))
-    
-    if is_production:
-        print("\n" + "="*50)
-        print("🚀 Collatz Backend - PRODUCTION MODE")
-        print("="*50)
-        app.run(host='0.0.0.0', port=port, debug=False)
-    else:
-        print("\n" + "="*50)
-        print("🚀 Collatz Backend Server - LOCAL MODE")
-        print("="*50)
-        print("📡 API: http://localhost:5000")
-        print("🔗 Health: http://localhost:5000/health")
-        print("🏠 Home: http://localhost:5000")
-        print("="*50 + "\n")
-        app.run(debug=True, port=port, host='0.0.0.0')
+    print(f"🚀 Starting development server on port {port}")
+    app.run(debug=True, port=port, host='0.0.0.0')
