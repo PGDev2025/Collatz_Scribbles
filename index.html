@@ -1029,7 +1029,7 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
       btn.classList.add('loading');
 
       try {
-        const response = await fetch('http://localhost:5000/api/generate', {
+        const response = await fetch('http://collatz-scribbles.onrender.com/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ number: num })
@@ -1045,7 +1045,7 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('Backend not running! Start the server with: python app.py\n\nMake sure it\'s running on http://localhost:5000');
+        alert('Backend not running!);
       } finally {
         btn.classList.remove('loading');
       }
@@ -1123,4 +1123,5 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
     });
   </script>
 </body>
+
 </html>
