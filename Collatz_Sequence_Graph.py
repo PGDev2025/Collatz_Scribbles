@@ -1,227 +1,1127 @@
-#Using pyvis network  directed acyclic graph (Collatz Sequence graph) is created as an html file and displayed in modal
-from pyvis.network import Network
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collatz Scribbles - The 3n+1 Mystery</title>
 
-def GraphMaker(number, CLG_Nodes, positions):
-    """
-    Generate styled Collatz graph
-    
-    Args:
-        number (int): Starting number
-        CLG_Nodes (list): Collatz sequence nodes
-        positions (dict): Node positions from Graph_Structure
-    
-    Returns:
-        Network: PyVis Network object
-    """
-    
-    net = Network(
-        height="900px",
-        width="100%",
-        bgcolor="#f8f9fa",
-        font_color="#2c3e50",
-        directed=True,
-        notebook=False,
-        heading=f"Collatz Sequence Journey: {number} -> 1"
-    )
-    
-    # ---- Stylish light theme options ----
-    net.set_options("""
-    {
-      "nodes": {
-        "borderWidth": 4,
-        "borderWidthSelected": 6,
-        "size": 28,
-        "font": {
-          "size": 18,
-          "face": "Inter, system-ui, sans-serif",
-          "bold": true,
-          "color": "#2c3e50"
-        },
-        "shadow": {
-          "enabled": true,
-          "color": "rgba(0,0,0,0.15)",
-          "size": 15,
-          "x": 4,
-          "y": 4
-        },
-        "shapeProperties": {
-          "borderRadius": 6
-        }
-      },
-      "edges": {
-        "width": 4,
-        "selectionWidth": 2,
-        "color": {
-          "color": "#95a5a6",
-          "highlight": "#3498db",
-          "hover": "#e74c3c"
-        },
-        "smooth": {
-          "enabled": true,
-          "type": "cubicBezier",
-          "roundness": 0.6
-        },
-        "arrows": {
-          "to": {
-            "enabled": true,
-            "scaleFactor": 1.5,
-            "type": "arrow"
-          }
-        },
-        "shadow": {
-          "enabled": true,
-          "color": "rgba(0,0,0,0.1)",
-          "size": 8,
-          "x": 2,
-          "y": 2
-        }
-      },
-      "interaction": {
-        "hover": true,
-        "hoverConnectedEdges": true,
-        "tooltipDelay": 50,
-        "zoomView": true,
-        "dragView": true,
-        "navigationButtons": true,
-        "keyboard": {
-          "enabled": true,
-          "speed": {
-            "x": 10,
-            "y": 10,
-            "zoom": 0.02
-          }
-        }
-      },
-      "physics": {
-        "enabled": false
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --cream: #FFF8E7;
+      --ink: #2C3E50;
+      --red: #e74c3c;
+      --blue: #3498db;
+      --purple: #9b59b6;
+      --gold: #f39c12;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      overflow-x: hidden;
+      position: relative;
+      line-height: 1.6;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        repeating-linear-gradient(
+          transparent,
+          transparent 29px,
+          rgba(44, 62, 80, 0.05) 29px,
+          rgba(44, 62, 80, 0.05) 30px
+        );
+      pointer-events: none;
+      z-index: 1;
+      animation: breathe 5s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    .floating-math {
+      position: fixed;
+      font-size: 3rem;
+      opacity: 0.1;
+      pointer-events: none;
+      z-index: 2;
+      animation: float 20s infinite ease-in-out;
+      color: var(--purple);
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      25% { transform: translate(20px, -30px) rotate(5deg); }
+      50% { transform: translate(-15px, -60px) rotate(-5deg); }
+      75% { transform: translate(30px, -40px) rotate(3deg); }
+    }
+
+    .floating-math:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+    .floating-math:nth-child(2) { top: 20%; right: 15%; animation-delay: 2s; }
+    .floating-math:nth-child(3) { bottom: 15%; left: 20%; animation-delay: 4s; }
+    .floating-math:nth-child(4) { bottom: 25%; right: 10%; animation-delay: 6s; }
+
+    .coffee-stain {
+      position: fixed;
+      bottom: 5%;
+      right: 5%;
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, rgba(139, 69, 19, 0.15) 0%, transparent 70%);
+      border-radius: 40% 60% 50% 50%;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0.3;
+    }
+
+    section {
+      position: relative;
+      z-index: 3;
+      padding: 4rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      opacity: 0;
+      transform: translateY(30px) rotate(-1deg);
+      transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    section.visible {
+      opacity: 1;
+      transform: translateY(0) rotate(0deg);
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      opacity: 1;
+      transform: none;
+    }
+
+    .hero h1 {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(3rem, 10vw, 7rem);
+      color: var(--purple);
+      margin-bottom: 1rem;
+      text-shadow: 3px 3px 0px rgba(231, 76, 60, 0.2);
+      animation: titleWobble 3s ease-in-out infinite;
+    }
+
+    @keyframes titleWobble {
+      0%, 100% { transform: rotate(-2deg); }
+      50% { transform: rotate(2deg); }
+    }
+
+    .hero p {
+      font-size: clamp(1rem, 3vw, 1.5rem);
+      color: var(--ink);
+      margin-bottom: 3rem;
+      max-width: 600px;
+    }
+
+    .floating-numbers {
+      display: flex;
+      gap: 1rem;
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: 600;
+      color: var(--blue);
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .floating-numbers span {
+      animation: bounce 2s ease-in-out infinite;
+      display: inline-block;
+    }
+
+    .floating-numbers span:nth-child(1) { animation-delay: 0s; }
+    .floating-numbers span:nth-child(2) { animation-delay: 0.2s; }
+    .floating-numbers span:nth-child(3) { animation-delay: 0.4s; }
+    .floating-numbers span:nth-child(4) { animation-delay: 0.6s; }
+    .floating-numbers span:nth-child(5) { animation-delay: 0.8s; }
+    .floating-numbers span:nth-child(6) { animation-delay: 1s; }
+    .floating-numbers span:nth-child(7) { animation-delay: 1.2s; }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: scrollBounce 2s ease-in-out infinite;
+      cursor: pointer;
+    }
+
+    @keyframes scrollBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(10px); }
+    }
+
+    .scroll-indicator svg {
+      width: 40px;
+      height: 40px;
+      fill: var(--ink);
+      opacity: 0.6;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 3rem;
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      border: 2px solid rgba(44, 62, 80, 0.1);
+      position: relative;
+    }
+
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      border-radius: 20px;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .glass-card:hover::before {
+      opacity: 0.3;
+    }
+
+    h2 {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      color: var(--purple);
+      margin-bottom: 2rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: var(--red);
+      transform: skewY(-1deg);
+      opacity: 0.6;
+    }
+
+    .sticky-note {
+      background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+      padding: 1.5rem;
+      margin: 2rem 0;
+      transform: rotate(-2deg);
+      box-shadow:
+        0 4px 8px rgba(0, 0, 0, 0.1),
+        inset 0 -40px 40px rgba(0, 0, 0, 0.05);
+      border-radius: 3px;
+      position: relative;
+      border-left: 3px solid var(--gold);
+    }
+
+    .sticky-note::before {
+      content: '📌';
+      position: absolute;
+      top: -10px;
+      right: 20px;
+      font-size: 2rem;
+    }
+
+    .explanation {
+      font-size: 1.1rem;
+      margin: 2rem 0;
+      line-height: 1.8;
+    }
+
+    .explanation ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .explanation li {
+      padding: 0.5rem 0;
+      padding-left: 2rem;
+      position: relative;
+    }
+
+    .explanation li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--blue);
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+
+    .flowchart {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+    }
+
+    .flowchart-box {
+      background: white;
+      border: 3px dashed var(--ink);
+      padding: 1rem 2rem;
+      border-radius: 10px;
+      font-weight: 600;
+      transform: rotate(-1deg);
+    }
+
+    .flowchart-arrow {
+      font-size: 2rem;
+      color: var(--red);
+    }
+
+    .examples-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin: 3rem 0;
+    }
+
+    .flip-card {
+      perspective: 1000px;
+      height: 250px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .flip-card:hover {
+      transform: translateY(-10px);
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
+    }
+
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flip-card-front,
+    .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .flip-card-front {
+      background: linear-gradient(135deg, var(--gold), var(--cream));
+      color: rgb(12, 0, 0);
+    }
+
+    .flip-card-front h3 {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      font-family: 'Caveat', cursive;
+      color:var(--ink)
+    }
+
+    .flip-card-back {
+      background: white;
+      color: var(--ink);
+      transform: rotateY(180deg);
+      border: 3px solid var(--purple);
+    }
+
+    .flip-card-back p {
+      margin: 0.5rem 0;
+      font-size: 1.1rem;
+    }
+
+    .flip-card-back strong {
+      color: var(--purple);
+    }
+
+    .torn-paper {
+      background: white;
+      padding: 3rem;
+      margin: 2rem 0;
+      position: relative;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .torn-paper::before,
+    .torn-paper::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 15px;
+      background: white;
+    }
+
+    .torn-paper::before {
+      top: -10px;
+      clip-path: polygon(
+        0 0, 5% 50%, 10% 0, 15% 50%, 20% 0, 25% 50%,
+        30% 0, 35% 50%, 40% 0, 45% 50%, 50% 0, 55% 50%,
+        60% 0, 65% 50%, 70% 0, 75% 50%, 80% 0, 85% 50%,
+        90% 0, 95% 50%, 100% 0, 100% 100%, 0 100%
+      );
+    }
+
+    .stamp {
+      display: inline-block;
+      padding: 0.5rem 1.5rem;
+      border: 4px solid var(--red);
+      color: var(--red);
+      font-weight: 700;
+      text-transform: uppercase;
+      transform: rotate(-5deg);
+      margin-bottom: 2rem;
+      letter-spacing: 2px;
+      font-size: 1.5rem;
+    }
+
+    .quote {
+      background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+      padding: 1.5rem;
+      margin: 2rem 0;
+      border-left: 5px solid var(--blue);
+      font-style: italic;
+      font-size: 1.2rem;
+      transform: rotate(1deg);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .cta-section {
+      text-align: center;
+    }
+
+    .cta-card {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .input-wrapper {
+      margin: 2rem 0;
+      position: relative;
+    }
+
+    .notebook-input {
+      width: 100%;
+      font-size: 2rem;
+      padding: 1rem;
+      border: none;
+      border-bottom: 3px solid var(--ink);
+      background: transparent;
+      font-family: 'Caveat', cursive;
+      text-align: center;
+      color: var(--ink);
+      transition: all 0.3s;
+    }
+
+    .notebook-input:focus {
+      outline: none;
+      border-bottom-color: var(--blue);
+      box-shadow: 0 3px 0 var(--blue);
+    }
+
+    .notebook-input.invalid {
+      animation: shake 0.5s;
+      border-bottom-color: var(--red);
+    }
+
+    .notebook-input.valid {
+      border-bottom-color: #27ae60;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .validation-icon {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 2rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .validation-icon.show {
+      opacity: 1;
+    }
+
+    .visualize-btn {
+      font-size: 1.5rem;
+      padding: 1rem 3rem;
+      background: linear-gradient(135deg, var(--purple), var(--blue));
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .visualize-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 30px rgba(155, 89, 182, 0.4);
+    }
+
+    .visualize-btn:active {
+      transform: scale(0.98);
+    }
+
+    .visualize-btn.loading {
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .visualize-btn .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+
+    .visualize-btn.loading .spinner {
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(10px);
+      border-top: 2px dashed var(--ink);
+      position: relative;
+      z-index: 3;
+    }
+
+    footer p {
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .footer-symbols {
+      font-size: 2rem;
+      letter-spacing: 1rem;
+      opacity: 0.3;
+      margin: 1rem 0;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .modal.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      max-width: 90vw;
+      max-height: 90vh;
+      width: 1200px;
+      height: 800px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      transform: scale(0.8);
+      transition: transform 0.3s;
+    }
+
+    .modal.show .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, var(--gold), var(--cream));
+      color: white;
+      padding: 1.5rem 2rem;
+      border-radius: 20px 20px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .modal-header h3 {
+      font-family: 'Caveat', cursive;
+      font-size: 2rem;
+      margin: 0;
+    }
+
+    .modal-stats {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .modal-close {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 2rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(90deg);
+    }
+
+    .modal-body {
+      flex: 1;
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .modal-body iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: var(--gold);
+      position: absolute;
+      animation: confetti-fall 3s linear forwards;
+      z-index: 1001;
+    }
+
+    @keyframes confetti-fall {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
       }
     }
-    """)
-    
-    # ---- Add stylish nodes ----
-    max_val = max(CLG_Nodes)
-    for i, node in enumerate(CLG_Nodes):
-        x, y = positions[node]
-        
-        # Elegant color palette
-        if node == CLG_Nodes[0]:  # Starting node
-            color = {
-                'background': '#e74c3c',
-                'border': '#c0392b',
-                'highlight': {
-                    'background': '#ff6b6b',
-                    'border': '#e74c3c'
-                }
-            }
-            size = 40
-            shape = 'diamond'
-            node_type = 'START'
-        elif node == 1:  # Ending node
-            color = {
-                'background': '#27ae60',
-                'border': '#229954',
-                'highlight': {
-                    'background': '#2ecc71',
-                    'border': '#27ae60'
-                }
-            }
-            size = 40
-            shape = 'star'
-            node_type = 'END'
-        elif node == max_val:  # Peak value
-            color = {
-                'background': '#f39c12',
-                'border': '#d68910',
-                'highlight': {
-                    'background': '#f1c40f',
-                    'border': '#f39c12'
-                }
-            }
-            size = 35
-            shape = 'dot'
-            node_type = 'PEAK'
-        elif node % 2 == 0:  # Even numbers
-            color = {
-                'background': '#3498db',
-                'border': '#2980b9',
-                'highlight': {
-                    'background': '#5dade2',
-                    'border': '#3498db'
-                }
-            }
-            size = 28
-            shape = 'dot'
-            node_type = 'EVEN'
-        else:  # Odd numbers
-            color = {
-                'background': '#9b59b6',
-                'border': '#8e44ad',
-                'highlight': {
-                    'background': '#bb8fce',
-                    'border': '#9b59b6'
-                }
-            }
-            size = 28
-            shape = 'dot'
-            node_type = 'ODD'
-        
-        # Rich tooltip without emojis
-        peak_badge = 'PEAK VALUE!' if node == max_val else 'NOT PEAK VALUE!'
-        title = f"""
-                Node value:{node}
-                Step: {i} of {len(CLG_Nodes)-1}
-                Type:{node_type}
-                {peak_badge}
-        """
-        
-        net.add_node(
-            node,
-            label=str(node),
-            x=x,
-            y=y,
-            physics=False,
-            color=color,
-            size=size,
-            shape=shape,
-            title=title
-        )
-    
-    # ---- Add elegant edges ----
-    for i in range(len(CLG_Nodes) - 1):
-        current = CLG_Nodes[i]
-        next_val = CLG_Nodes[i + 1]
-        
-        if current % 2 == 0:  # Division operation
-            edge_color = {
-                'color': '#3498db',
-                'highlight': '#2980b9',
-                'hover': '#5dade2'
-            }
-            edge_label = "/ 2"
-            dashes = False
-        else:  # 3n+1 operation
-            edge_color = {
-                'color': '#e74c3c',
-                'highlight': '#c0392b',
-                'hover': '#ff6b6b'
-            }
-            edge_label = "3n + 1"
-            dashes = [5, 5]
-        
-        net.add_edge(
-            CLG_Nodes[i], 
-            CLG_Nodes[i + 1],
-            color=edge_color,
-            width=4,
-            label=edge_label,
-            dashes=dashes,
-            font={
-                'size': 14, 
-                'align': 'middle', 
-                'color': '#2c3e50',
-                'background': 'rgba(255,255,255,0.9)',
-                'strokeWidth': 0
-            }
-        )
-    
-    return net
+
+    @media (max-width: 768px) {
+      section {
+        padding: 2rem 1rem;
+      }
+
+      .glass-card {
+        padding: 1.5rem;
+      }
+
+      .examples-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .modal-content {
+        width: 95vw;
+        height: 95vh;
+      }
+
+      .modal-header {
+        padding: 1rem;
+      }
+
+      .modal-header h3 {
+        font-size: 1.5rem;
+      }
+
+      .floating-math {
+        font-size: 2rem;
+      }
+
+      .flowchart {
+        flex-direction: column;
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="floating-math">π</div>
+  <div class="floating-math">Σ</div>
+  <div class="floating-math">∞</div>
+  <div class="floating-math">√</div>
+  <div class="coffee-stain"></div>
+
+  <section class="hero">
+    <h1>Collatz Scribbles</h1>
+    <p>Watch any number fall into the 4-2-1 loop like magic</p>
+    <div class="floating-numbers">
+      <span>10</span>
+      <span>→</span>
+      <span>5</span>
+      <span>→</span>
+      <span>16</span>
+      <span>→</span>
+      <span>8</span>
+      <span>→</span>
+      <span>4</span>
+      <span>→</span>
+      <span>2</span>
+      <span>→</span>
+      <span>1</span>
+    </div>
+    <div class="scroll-indicator" onclick="document.querySelector('.what-section').scrollIntoView()">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 4l-8 8h5v8h6v-8h5z"/>
+      </svg>
+    </div>
+  </section>
+
+  <section class="what-section">
+    <div class="glass-card">
+      <h2>The Collatz Conjecture</h2>
+
+      <div class="sticky-note">
+        <strong>The simplest math problem no one can solve</strong>
+      </div>
+
+      <div class="explanation">
+        <p>Take any positive whole number except 1:</p>
+        <ul>
+          <li>If <strong>EVEN</strong> → divide by 2</li>
+          <li>If <strong>ODD</strong> → multiply by 3 and add 1</li>
+          <li>Repeat until you reach 1</li>
+        </ul>
+      </div>
+
+      <div class="flowchart">
+        <div class="flowchart-box">Start with n</div>
+        <div class="flowchart-arrow">→</div>
+        <div class="flowchart-box">Even? n/2</div>
+        <div class="flowchart-arrow">↓</div>
+        <div class="flowchart-box">Odd? 3n+1</div>
+        <div class="flowchart-arrow">→</div>
+        <div class="flowchart-box">Eventually... 1!</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="examples-section">
+    <h2 style="text-align: center; width: 100%;">Mind-Bending Examples</h2>
+    <div class="examples-grid">
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <h3>6</h3>
+            <p>Click to reveal</p>
+          </div>
+          <div class="flip-card-back">
+            <p><strong>Steps:</strong> 8</p>
+            <p><strong>Peak:</strong> 16</p>
+            <p><strong>Path:</strong> 6→3→10→5→16→8→4→2→1</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <h3>27</h3>
+            <p>Click to reveal</p>
+          </div>
+          <div class="flip-card-back">
+            <p><strong>Steps:</strong> 111</p>
+            <p><strong>Peak:</strong> 9,232</p>
+            <p><strong>Wow!</strong> Goes way up before coming down!</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <h3>7</h3>
+            <p>Click to reveal</p>
+          </div>
+          <div class="flip-card-back">
+            <p><strong>Steps:</strong> 16</p>
+            <p><strong>Peak:</strong> 52</p>
+            <p><strong>Path:</strong> Small but mighty!</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card" onclick="this.classList.toggle('flipped')">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <h3>97</h3>
+            <p>Click to reveal</p>
+          </div>
+          <div class="flip-card-back">
+            <p><strong>Steps:</strong> 118</p>
+            <p><strong>Peak:</strong> 9,232</p>
+            <p><strong>Amazing!</strong> Takes a wild journey!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="why-section">
+    <div class="torn-paper">
+      <div class="stamp">UNSOLVED MYSTERY</div>
+
+      <h2>Why It Matters</h2>
+
+      <div class="explanation">
+        <ul>
+          <li>Nobody has proven it works for <strong>ALL</strong> numbers</li>
+          <li>Tested up to 2<sup>68</sup>... still works!</li>
+          <li>Simple rule → Complex behavior</li>
+          <li>Mathematicians have been puzzled since 1937</li>
+        </ul>
+      </div>
+
+      <div class="quote">
+        "Mathematics is not about numbers, equations, or algorithms: it is about understanding patterns in the universe."
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="glass-card cta-card">
+      <h2>Want to see the magic for YOUR number?</h2>
+
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="numberInput"
+          class="notebook-input"
+          placeholder="Enter 1-10,000"
+          min="1"
+          max="10000"
+        >
+        <span class="validation-icon" id="validationIcon"></span>
+      </div>
+
+      <button class="visualize-btn" id="visualizeBtn" onclick="visualizeNumber()">
+        ✨ Visualize My Journey
+        <span class="spinner"></span>
+      </button>
+    </div>
+  </section>
+  <script>
+document.getElementById('magicForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('visualizeBtn');
+  const spinner = btn.querySelector('.spinner');
+  const num = document.getElementById('numberInput').value;
+
+  btn.disabled = true;
+  spinner.style.display = 'inline-block';
+
+  try {
+    const resp = await fetch('/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ num: parseInt(num) })
+    });
+
+    const data = await resp.json();
+    if (data.success) {
+      // redirect to the freshly created HTML page
+      window.location.href = data.url;
+    } else {
+      alert(data.error || 'Something went wrong');
+    }
+  } catch (err) {
+    alert('Network error');
+  } finally {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+  }
+});
+</script>
+  <footer>
+    <p>Made with ❤️ and ∞ by Pravan Gupta</p>
+    <div class="footer-symbols">π Σ √ ∫</div>
+    <p style="font-size: 0.9rem; opacity: 0.7;">Explore. Question. Wonder.</p>
+  </footer>
+
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h3 id="modalTitle">Collatz Journey</h3>
+          <div class="modal-stats" id="modalStats"></div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <iframe id="modalIframe"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let easterEggCount = 0;
+    let lastEasterEggInput = '';
+
+    const observerOptions = {
+      threshold: 0.2,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('section').forEach(section => {
+      if (!section.classList.contains('hero')) {
+        observer.observe(section);
+      }
+    });
+
+    const input = document.getElementById('numberInput');
+    const validationIcon = document.getElementById('validationIcon');
+
+    input.addEventListener('input', (e) => {
+  const value = e.target.value;
+  const num = parseFloat(value);
+
+  input.classList.remove('valid', 'invalid');
+  validationIcon.classList.remove('show');
+
+  if (value === '') return;
+
+  // Check for: NaN, out of range, OR float (non-integer)
+  if (isNaN(num) || num < 1 || num > 10000 || !Number.isInteger(num)) {
+    input.classList.add('invalid');
+    validationIcon.textContent = '❌';
+    validationIcon.classList.add('show');
+  } else {
+    input.classList.add('valid');
+    validationIcon.textContent = '✅';
+    validationIcon.classList.add('show');
+
+    if (value === '27') {
+      if (lastEasterEggInput === '27') {
+        easterEggCount++;
+      } else {
+        easterEggCount = 1;
+      }
+      lastEasterEggInput = '27';
+
+      if (easterEggCount === 3) {
+        setTimeout(() => {
+          alert('🎉 Fun Fact: The number 27 takes 111 steps to reach 1, climbing all the way up to 9,232! It\'s one of the most dramatic journeys for such a small number!');
+          easterEggCount = 0;
+        }, 100);
+      }
+    } else {
+      lastEasterEggInput = value;
+      easterEggCount = 0;
+    }
+  }
+});
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        visualizeNumber();
+      }
+    });
+
+  async function visualizeNumber() {
+  const input = document.getElementById('numberInput');
+  const btn = document.getElementById('visualizeBtn');
+  const num = parseFloat(input.value);
+
+  // Check for invalid input: NaN, out of range, OR float
+  if (isNaN(num) || num < 1 || num > 10000 || !Number.isInteger(num)) {
+    input.classList.add('invalid');
+    setTimeout(() => input.classList.remove('invalid'), 500);
+    return;
+  }
+
+  btn.classList.add('loading');
+
+  try {
+    const response = await fetch('http://localhost:5000/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ number: Math.floor(num) })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      showModal(data.html, data.stats, num);
+      createConfetti();
+    } else {
+      alert(data.error || 'An error occurred while generating the visualization.');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Backend not running! Start the server with: python app.py\n\nMake sure it\'s running on http://localhost:5000');
+  } finally {
+    btn.classList.remove('loading');
+  }
+}
+
+    function showModal(htmlContent, stats, number) {
+      const modal = document.getElementById('modal');
+      const iframe = document.getElementById('modalIframe');
+      const title = document.getElementById('modalTitle');
+      const statsDiv = document.getElementById('modalStats');
+
+      title.textContent = `Collatz Sequence Journey: ${number} -> 1`;
+      statsDiv.innerHTML = `Steps: <strong>${stats.steps-1}</strong> | Peak: <strong>${stats.peak.toLocaleString()}</strong> | Growth: <strong>${stats.growth_factor}x</strong>`;
+
+      iframe.srcdoc = htmlContent;
+
+      modal.classList.add('show');
+
+      document.addEventListener('keydown', handleEscapeKey);
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('modal');
+      modal.classList.remove('show');
+      document.removeEventListener('keydown', handleEscapeKey);
+    }
+
+    function handleEscapeKey(e) {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    }
+
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target.id === 'modal') {
+        closeModal();
+      }
+    });
+
+    function createConfetti() {
+      const colors = ['#e74c3c', '#3498db', '#9b59b6', '#f39c12', '#27ae60'];
+      const confettiCount = 50;
+
+      for (let i = 0; i < confettiCount; i++) {
+        setTimeout(() => {
+          const confetti = document.createElement('div');
+          confetti.className = 'confetti';
+          confetti.style.left = Math.random() * 100 + 'vw';
+          confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+          confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+          confetti.style.animationDelay = Math.random() * 0.5 + 's';
+          document.body.appendChild(confetti);
+
+          setTimeout(() => confetti.remove(), 3500);
+        }, i * 30);
+      }
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `
+      @media (hover: hover) {
+        body {
+          cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="%239b59b6"><circle cx="12" cy="12" r="2"/><path d="M12 2 L13 11 L12 12 L11 11 Z"/></svg>'), auto;
+        }
+        a, button, .flip-card, .scroll-indicator {
+          cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="%23e74c3c"><circle cx="12" cy="12" r="3"/></svg>'), pointer;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    window.addEventListener('load', () => {
+      const hero = document.querySelector('.hero');
+      hero.style.opacity = '1';
+    });
+  </script>
+</body>
+</html>
