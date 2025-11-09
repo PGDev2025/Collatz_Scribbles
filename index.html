@@ -878,8 +878,8 @@
           type="number"
           id="numberInput"
           class="notebook-input"
-          placeholder="Enter 1-10,000"
-          min="1"
+          placeholder="Enter 2-10,000"
+          min="2"
           max="10000"
         >
         <span class="validation-icon" id="validationIcon"></span>
@@ -980,7 +980,7 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
   if (value === '') return;
 
   // Check for: NaN, out of range, OR float (non-integer)
-  if (isNaN(num) || num < 1 || num > 10000 || !Number.isInteger(num)) {
+  if (isNaN(num) || num < 2 || num > 10000 || !Number.isInteger(num)) {
     input.classList.add('invalid');
     validationIcon.textContent = '❌';
     validationIcon.classList.add('show');
@@ -1021,7 +1021,7 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
   const num = parseFloat(input.value);
 
   // Check for invalid input: NaN, out of range, OR float
-  if (isNaN(num) || num < 1 || num > 10000 || !Number.isInteger(num)) {
+  if (isNaN(num) || num < 2 || num > 10000 || !Number.isInteger(num)) {
     input.classList.add('invalid');
     setTimeout(() => input.classList.remove('invalid'), 500);
     return;
@@ -1125,4 +1125,5 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
   </script>
 </body>
 </html>
+
 
