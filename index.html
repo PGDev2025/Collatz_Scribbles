@@ -971,85 +971,86 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
     const validationIcon = document.getElementById('validationIcon');
 
     input.addEventListener('input', (e) => {
-      const value = e.target.value;
-      const num = parseInt(value);
+  const value = e.target.value;
+  const num = parseFloat(value);
 
-      input.classList.remove('valid', 'invalid');
-      validationIcon.classList.remove('show');
+  input.classList.remove('valid', 'invalid');
+  validationIcon.classList.remove('show');
 
-      if (value === '') return;
+  if (value === '') return;
 
-      if (isNaN(num) || num < 1 || num > 10000) {
-        input.classList.add('invalid');
-        validationIcon.textContent = '❌';
-        validationIcon.classList.add('show');
+  // Check for: NaN, out of range, OR float (non-integer)
+  if (isNaN(num) || num < 1 || num > 10000 || !Number.isInteger(num)) {
+    input.classList.add('invalid');
+    validationIcon.textContent = '❌';
+    validationIcon.classList.add('show');
+  } else {
+    input.classList.add('valid');
+    validationIcon.textContent = '✅';
+    validationIcon.classList.add('show');
+
+    if (value === '27') {
+      if (lastEasterEggInput === '27') {
+        easterEggCount++;
       } else {
-        input.classList.add('valid');
-        validationIcon.textContent = '✅';
-        validationIcon.classList.add('show');
-
-        if (value === '27') {
-          if (lastEasterEggInput === '27') {
-            easterEggCount++;
-          } else {
-            easterEggCount = 1;
-          }
-          lastEasterEggInput = '27';
-
-          if (easterEggCount === 3) {
-            setTimeout(() => {
-              alert('🎉 Fun Fact: The number 27 takes 111 steps to reach 1, climbing all the way up to 9,232! It\'s one of the most dramatic journeys for such a small number!');
-              easterEggCount = 0;
-            }, 100);
-          }
-        } else {
-          lastEasterEggInput = value;
-          easterEggCount = 0;
-        }
+        easterEggCount = 1;
       }
-    });
+      lastEasterEggInput = '27';
 
+      if (easterEggCount === 3) {
+        setTimeout(() => {
+          alert('🎉 Fun Fact: The number 27 takes 111 steps to reach 1, climbing all the way up to 9,232! It\'s one of the most dramatic journeys for such a small number!');
+          easterEggCount = 0;
+        }, 100);
+      }
+    } else {
+      lastEasterEggInput = value;
+      easterEggCount = 0;
+    }
+  }
+});
     input.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         visualizeNumber();
       }
     });
 
-    async function visualizeNumber() {
-      const input = document.getElementById('numberInput');
-      const btn = document.getElementById('visualizeBtn');
-      const num = parseInt(input.value);
+  async function visualizeNumber() {
+  const input = document.getElementById('numberInput');
+  const btn = document.getElementById('visualizeBtn');
+  const num = parseFloat(input.value);
 
-      if (isNaN(num) || num < 1 || num > 10000) {
-        input.classList.add('invalid');
-        setTimeout(() => input.classList.remove('invalid'), 500);
-        return;
-      }
+  // Check for invalid input: NaN, out of range, OR float
+  if (isNaN(num) || num < 1 || num > 10000 || !Number.isInteger(num)) {
+    input.classList.add('invalid');
+    setTimeout(() => input.classList.remove('invalid'), 500);
+    return;
+  }
 
-      btn.classList.add('loading');
+  btn.classList.add('loading');
 
-      try {
-        const response = await fetch('https://collatz-scribbles.onrender.com/api/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ number: num })
-        });
+  try {
+    const response = await fetch('http://collatz-scribbles.onrender.com/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ number: Math.floor(num) })
+    });
 
-        const data = await response.json();
+    const data = await response.json();
 
-        if (data.success) {
-          showModal(data.html, data.stats, num);
-          createConfetti();
-        } else {
-          alert(data.error || 'An error occurred while generating the visualization.');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Backend not running! Start the server with: python app.py\n\nMake sure it\'s running on http://localhost:5000');
-      } finally {
-        btn.classList.remove('loading');
-      }
+    if (data.success) {
+      showModal(data.html, data.stats, num);
+      createConfetti();
+    } else {
+      alert(data.error || 'An error occurred while generating the visualization.');
     }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Backend not running! Start the server with: python app.py\n\nMake sure it\'s running on http://localhost:5000');
+  } finally {
+    btn.classList.remove('loading');
+  }
+}
 
     function showModal(htmlContent, stats, number) {
       const modal = document.getElementById('modal');
@@ -1057,7 +1058,7 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
       const title = document.getElementById('modalTitle');
       const statsDiv = document.getElementById('modalStats');
 
-      title.textContent = ``;
+      title.textContent = `Collatz Sequence Journey: ${number} -> 1`;
       statsDiv.innerHTML = `Steps: <strong>${stats.steps-1}</strong> | Peak: <strong>${stats.peak.toLocaleString()}</strong> | Growth: <strong>${stats.growth_factor}x</strong>`;
 
       iframe.srcdoc = htmlContent;
@@ -1124,4 +1125,3 @@ document.getElementById('magicForm').addEventListener('submit', async (e) => {
   </script>
 </body>
 </html>
-
