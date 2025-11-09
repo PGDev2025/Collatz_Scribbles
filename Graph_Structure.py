@@ -16,8 +16,8 @@ def positioner(CLG_Nodes):
         else:
           position[CLG_Nodes[index]]=(pos_count*40,90)
       if index==0:
-          position[CLG_Nodes[index]]=(0,0)
+          position[CLG_Nodes[index]]=(-100,0)
       if index==len(CLG_Nodes)-1:
-          position[CLG_Nodes[index]]=(pos_count*41,0) 
+          position[CLG_Nodes[index]]=(pos_count*43,0) 
     return position    
 
